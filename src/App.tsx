@@ -16,10 +16,18 @@ import { MathUtils } from 'three';
 import * as random from 'maath/random';
 import { GestureRecognizer, FilesetResolver, DrawingUtils } from "@mediapipe/tasks-vision";
 
+// 读取 public 文件夹下的 photos 目录的所有图片
+const images = import.meta.glob('/public/my-photos/*.{jpg,png,jpeg,webp}', {
+  eager: true,
+  import: 'default',
+});
+// 转成 URL 数组
+const imageList = Object.values(images) as string[];
+
 // --- 动态生成照片列表 (top.jpg + 1.jpg 到 31.jpg) ---
 const TOTAL_NUMBERED_PHOTOS = 31;
 // 修改：将 top.jpg 加入到数组开头
-const bodyPhotoPaths = [
+const bodyPhotoPaths =  (Array.isArray(imageList) && imageList.length > 0) ? imageList :  [
   '/photos/top.jpg',
   ...Array.from({ length: TOTAL_NUMBERED_PHOTOS }, (_, i) => `/photos/${i + 1}.jpg`)
 ];
@@ -179,7 +187,7 @@ const PhotoOrnaments = ({ state }: { state: 'CHAOS' | 'FORMED' }) => {
       group.position.copy(objData.currentPos);
 
       if (isFormed) {
-         const targetLookPos = new THREE.Vector3(group.position.x * 2, group.position.y + 0.5, group.position.z * 2);
+         const targetLookPos = new THREE.Vector3(group.position.x * 2, group.position.y + 3, group.position.z * 2);
          group.lookAt(targetLookPos);
 
          const wobbleX = Math.sin(time * objData.wobbleSpeed + objData.wobbleOffset) * 0.05;
@@ -403,7 +411,7 @@ const Experience = ({ sceneState, rotationSpeed }: { sceneState: 'CHAOS' | 'FORM
       <pointLight position={[-30, 10, -30]} intensity={50} color={CONFIG.colors.gold} />
       <pointLight position={[0, -20, 10]} intensity={30} color="#ffffff" />
 
-      <group position={[0, -6, 0]}>
+      <group position={[0, 0, 0]}>
         <Foliage state={sceneState} />
         <Suspense fallback={null}>
            <PhotoOrnaments state={sceneState} />
